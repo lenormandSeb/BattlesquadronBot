@@ -27,13 +27,14 @@ async def my_research(ctx, param):
             if isinstance(int(x), int):
                 u.updateResearch(index, x)
         except ValueError:
-            if index == 0:
-                message = 'Tu ne m\'as pas donnée de niveau pour les RS'
-            elif index == 1:
-                message = 'Tu ne m\'as pas donnée de niveau pour les BS'
-            elif index == 2:
-                message = 'Tu ne m\'as pas donnée de niveau pour les WS'
-            await ctx.author.send(content=message)
+            errorMessage = 'Tu ne m\'as pas donnée de niveau pour les {0}'
+            switcher={
+                0: 'RS',
+                1: 'BS',
+                2: 'WS',
+            }
+            errorVal = switcher.get(index, 'what?')
+            await ctx.author.send(content=errorMessage.format(errorVal))
             return
 
     await ctx.author.send(content='Merci, j\'ai mis a jour tes données sur les recherches !') 
