@@ -2,7 +2,9 @@ import os
 import discord
 from discord.ext.commands import Bot
 
-Token = ''
+f = open('env', 'r')
+
+Token = f.readline()
 
 bot = Bot(command_prefix="!")
 
