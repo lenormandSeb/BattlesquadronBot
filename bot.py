@@ -1,6 +1,7 @@
 import os
 import discord
 from discord.ext.commands import Bot
+from classes.User import User
 
 
 f = open('env', 'r')
@@ -19,22 +20,36 @@ async def create_RS(ctx, lvl):
 
 
 @bot.command()
-async def testBotMoi(ctx):
-    if ctx.message.content.find('coucou'):
-        message = "serieux, encore un coucou ?"
-    else :
-        message = ctx.message
-    await ctx.send(content='coucou {0}, ton message est : {1}'.format(ctx.author.name, message))
+async def my_research(ctx, param):
+    u = User(ctx.author)
+    for index,x in enumerate(param.split(',')):
+        try:
+            if isinstance(int(x), int):
+                u.updateResearch(index, x)
+        except ValueError:
+            errorMessage = 'Tu ne m\'as pas donnée de niveau pour les {0}'
+            switcher={
+                0: 'RS',
+                1: 'BS',
+                2: 'WS',
+            }
+            errorVal = switcher.get(index, 'what?')
+            await ctx.author.send(content=errorMessage.format(errorVal))
+            return
+
+    await ctx.author.send(content='Merci, j\'ai mis a jour tes données sur les recherches !') 
 
 @bot.command()
 async def helpBot(ctx):
     helpcommand = discord.Embed(
-        title = 'Voici les commandes pour le bot',
+        title = 'Voici les commandes pour le bot {0}'.format(ctx.author.name),
         color = discord.Color.orange(),
     )
-    helpcommand.add_field(name='!create_RS Niveau', value='Lance une invite pour les joueurs ayant le niveau requis', inline=True)
-    helpcommand.set_author(name='Help')
-    await ctx.send(content='{0}'.format(ctx.author.name), embed=helpcommand)
+    helpcommand.add_field(name='!create_RS Niveau', value='Lance une invite pour les joueurs ayant le niveau requis', inline=False)
+    helpcommand.add_field(name='!my_research RS,BS,WS', value='Met a jours toutes tes recherches', inline=False)
+    helpcommand.set_author(name='Ton ami le bot !')
+    helpcommand.set_thumbnail(url=bot.user.avatar_url)
+    await ctx.send(embed=helpcommand)
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -45,6 +60,7 @@ async def on_member_join(member):
     embed = discord.Embed(
         title = 'Bienvenue chez BattleSquaddron {0}'.format(member.display_name)
     )
+    embed.set_thumbnail(url=member.avatar_url)
     embed.add_field(name='Qui suis-je ?', value='Je suis le bot de Battle Squadron', inline=False)
     embed.add_field(name='Qui sais-je faire ?', value='Tape !helpBot !', inline=False)
     await member.send(embed=embed)
