@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext.commands import Bot
 
+
 f = open('env', 'r')
 
 Token = f.readline()
@@ -28,5 +29,21 @@ async def testBotMoi(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
+
+@bot.event
+async def on_member_join(member):
+    embed = discord.Embed(
+        title = 'Bienvenue chez BattleSquaddron {0}'.format(member.display_name)
+    )
+    embed.add_field(name='Qui suis-je ?', value='Je suis le bot de Battle Squadron', inline=False)
+    embed.add_field(name='Qui sais-je faire ?', value='Tape !help !', inline=False)
+    await member.send(embed=embed)
+
+    newEmbed = discord.Embed(
+        title = 'J\'ai encore besoin de quelque info {0}'
+    )
+    newEmbed.add_field(name='Quel info j\'ai besoin ?', value='Juste de ton niveau de recherche des étoiles Rouge, Bleu et Blanche', inline=False)
+    newEmbed.add_field(name='Comment me les dire ?', value='Entre la commande !my_research x,x,x, (les trois x correspondent a tes niveaux dans l\'ordre precedement sité', inline=False)
+    await member.send(embed=newEmbed)
 
 bot.run(Token)
