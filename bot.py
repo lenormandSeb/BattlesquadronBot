@@ -1,9 +1,13 @@
 import os
-
 import discord
+from discord.ext.commands import Bot
 
-TOKEN = 'NjkwNTg5MTg3Mjk2MTk4NzY2.XnTpmA.gLZF66-95tmgPkhwLs-k2aB4hJ8'
+TOKEN = "NjkwNTg5MTg3Mjk2MTk4NzY2.XnTzqg.B1u6FfRA53WIZqQo5R1cJw9tB8Q"
 
-client = discord.Client()
+bot = Bot(command_prefix="!")
 
-client.run(TOKEN)
+@bot.command()
+async def testBotMoi(ctx):
+    message = await ctx.send(content='coucou {0}'.format(ctx.author.name))
+
+bot.run(TOKEN)
