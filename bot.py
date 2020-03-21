@@ -8,6 +8,7 @@ f = open('env', 'r')
 
 Token = f.readline()
 bot = Bot(command_prefix="!")
+bot.remove_command('help')
 
 
 @bot.command()
@@ -40,20 +41,43 @@ async def my_research(ctx, param):
     await ctx.author.send(content='Merci, j\'ai mis a jour tes données sur les recherches !') 
 
 @bot.command()
-async def helpBot(ctx):
+async def update_research(ctx, params):
+    parameter = params.split(',')
+    u = User(ctx.author)
+    if parameter[0] == 'RS':
+        research = 'Red Star'
+        u.updateRedStar(parameter[1])
+    elif parameter[0] == 'BS':
+        research = 'Blue Star'
+        u.updateBlueStar(parameter[1])
+    elif parameter[0] == 'WS':
+        research = 'White Star'
+        u.updateWhiteStar(parameter[1])
+    else:
+        await ctx.channel.send(content='Désolé {0}, mais je ne connais pas la recherche {1}'.format(ctx.author.name, parameter[0]))
+        return
+    
+    await ctx.channel.send(content='Ok {0}, j\'ai mis a jour ta recherche pour les {1}'.format(ctx.author.name, research))
+
+
+
+@bot.command(pass_context=True)
+async def help(ctx):
     helpcommand = discord.Embed(
         title = 'Voici les commandes pour le bot {0}'.format(ctx.author.name),
         color = discord.Color.orange(),
     )
     helpcommand.add_field(name='!create_RS Niveau', value='Lance une invite pour les joueurs ayant le niveau requis', inline=False)
     helpcommand.add_field(name='!my_research RS,BS,WS', value='Met a jours toutes tes recherches', inline=False)
+    helpcommand.add_field(name='!update_research (RS ou BS ou WS),niveau', value='Met a jours la recherche défini', inline=False)
     helpcommand.set_author(name='Ton ami le bot !')
     helpcommand.set_thumbnail(url=bot.user.avatar_url)
     await ctx.send(embed=helpcommand)
 
 @bot.event
 async def on_command_error(ctx, error):
-    await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !helpBot pour plus d\'information'.format(ctx.message.author.name))
+    print(error)
+    await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
 
 @bot.event
 async def on_member_join(member):
@@ -62,7 +86,7 @@ async def on_member_join(member):
     )
     embed.set_thumbnail(url=member.avatar_url)
     embed.add_field(name='Qui suis-je ?', value='Je suis le bot de Battle Squadron', inline=False)
-    embed.add_field(name='Qui sais-je faire ?', value='Tape !helpBot !', inline=False)
+    embed.add_field(name='Qui sais-je faire ?', value='Tape !help !', inline=False)
     await member.send(embed=embed)
 
     newEmbed = discord.Embed(
