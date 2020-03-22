@@ -3,12 +3,12 @@ import discord
 from tinydb import TinyDB, Query
 from discord.ext.commands import Bot
 from classes.User import User
+from dotenv import load_dotenv
 
-
-f = open('env', 'r')
+load_dotenv()
 db = TinyDB('user_database.json')
 QueryDB = Query()
-Token = f.readline()
+Token = os.getenv('DISCORD_TOKEN')
 bot = Bot(command_prefix="!")
 bot.remove_command('help')
 
