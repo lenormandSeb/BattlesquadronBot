@@ -14,9 +14,24 @@ bot.remove_command('help')
 
 
 @bot.command()
-async def create_RS(ctx, lvl):
+async def create_RS(ctx, lvl, hour = None):
     author = ctx.author.name
     if lvl != '0':
+        table = db.table('user')
+        search = table.search(QueryDB.RS >= lvl)
+
+        if hour:
+            message = ' pour {0}'.format(hour)
+        else:
+            message = ''
+
+        if len(search) > 0:
+            for result in search:
+                forsend = bot.get_user(result.get('id_user'))
+                name = result.get('name')
+                await forsend.send(content='Hey {0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
+        else:
+            await ctx.send(content='Désoler {0}, mais personne n\'as débloquer ce niveau de recherche'.format(author))
         await ctx.send(content='{0}, tu veux creer une RS de niveau {1}? J\'envoie une invite a ceux qui le peuvent'.format(author, lvl))
     else:
         await ctx.send(content='{0}, cela n\'existe pas une RS 0'.format(author))
@@ -70,9 +85,9 @@ async def help(ctx):
         title = 'Voici les commandes pour le bot {0}'.format(ctx.author.name),
         color = discord.Color.orange(),
     )
-    helpcommand.add_field(name='!create_RS Niveau', value='Lance une invite pour les joueurs ayant le niveau requis', inline=False)
-    helpcommand.add_field(name='!my_research RS,BS,WS', value='Met a jours toutes tes recherches', inline=False)
-    helpcommand.add_field(name='!update_research (RS ou BS ou WS),niveau', value='Met a jours la recherche défini', inline=False)
+    helpcommand.add_field(name='!create_RS Niveau Heure(optionel)', value='Lance une invite pour les joueurs ayant le niveau requis avec l\'heure ou sans. \n Exemple: `!create_RS 2`, `!create_RS 2 20h`', inline=False)
+    helpcommand.add_field(name='!my_research RS,BS,WS', value='Met a jours toutes tes recherches.\n Exemple: `!my_research 1,2,0`', inline=False)
+    helpcommand.add_field(name='!update_research (RS ou BS ou WS),niveau', value='Met a jours la recherche défini.\n Exemple `!update_research RS,3`', inline=False)
     helpcommand.set_author(name='Ton ami le bot !')
     helpcommand.set_thumbnail(url=bot.user.avatar_url)
     await ctx.send(embed=helpcommand)
