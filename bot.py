@@ -1,11 +1,13 @@
 import os
 import discord
+from tinydb import TinyDB, Query
 from discord.ext.commands import Bot
 from classes.User import User
 
 
 f = open('env', 'r')
-
+db = TinyDB('user_database.json')
+QueryDB = Query()
 Token = f.readline()
 bot = Bot(command_prefix="!")
 bot.remove_command('help')
@@ -37,7 +39,8 @@ async def my_research(ctx, param):
             errorVal = switcher.get(index, 'what?')
             await ctx.author.send(content=errorMessage.format(errorVal))
             return
-
+    table = db.table('user')
+    table.upsert(u.jsonify(), QueryDB.id_user == ctx.author.id)
     await ctx.author.send(content='Merci, j\'ai mis a jour tes données sur les recherches !') 
 
 @bot.command()

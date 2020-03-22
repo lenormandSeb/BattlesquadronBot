@@ -1,3 +1,4 @@
+import json
 class User:
     id_user = ''
     name = ''
@@ -30,3 +31,13 @@ class User:
     def updateWhiteStar(self, value):
         self.WS = value
         return
+    
+    def jsonify(self):
+        user = {
+            "id_user" :self.id_user,
+            "name":self.name,
+            "RS":self.RS, 
+            "BS":self.BS, 
+            "WS":self.WS, 
+        }
+        return user
