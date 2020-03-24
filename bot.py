@@ -12,6 +12,10 @@ Token = os.getenv('DISCORD_TOKEN')
 bot = Bot(command_prefix="!")
 bot.remove_command('help')
 
+@bot.event
+async def on_ready():
+    game = discord.Game("avec des Humains !")
+    await bot.change_presence(status=discord.Status.idle, activity=game)
 
 @bot.command()
 async def create_RS(ctx, lvl, hour = None):
