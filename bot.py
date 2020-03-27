@@ -14,8 +14,8 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    game = discord.Game("avec des Humains !")
-    await bot.change_presence(status=discord.Status.idle, activity=game)
+    game = discord.Game("compter les pixels de la TV")
+    await bot.change_presence(status=discord.Status.online, activity=game)
 
 @bot.command()
 async def create_RS(ctx, lvl, hour = None):
@@ -33,10 +33,13 @@ async def create_RS(ctx, lvl, hour = None):
             for result in search:
                 forsend = bot.get_user(result.get('id_user'))
                 name = result.get('name')
-                await forsend.send(content='Hey {0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
+                try:
+                    await forsend.send(content='Hey {0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
+                except discord.HTTPException:
+                    await ctx.channel.send(content='Hey @{0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
         else:
             await ctx.send(content='Désoler {0}, mais personne n\'as débloquer ce niveau de recherche'.format(author))
-        message = await ctx.send(content='{0}, tu veux creer une RS de niveau {1}? J\'envoie une invite a ceux qui le peuvent'.format(author, lvl))
+        # message = await ctx.send(content='{0}, tu veux creer une RS de niveau {1}? J\'envoie une invite a ceux qui le peuvent'.format(author, lvl))
         await ctx.message.add_reaction('👍')
     else:
         await ctx.send(content='{0}, cela n\'existe pas une RS 0'.format(author))
@@ -50,11 +53,17 @@ async def my_research(ctx, param):
             u.updateRedStar(param)
     except ValueError:
         errorMessage = 'Tu ne m\'as pas donnée de niveau pour la recherche'
-        await ctx.author.send(content=errorMessage)
+        try:
+            await ctx.author.send(content=errorMessage)
+        except discord.HTTPException:
+            await ctx.channel.send(content='Tu ne m\'as pas donnée de niveau pour la recherche {0}'.format(ctx.author.name))
         return
     table = db.table('user')
     table.upsert(u.jsonify(), QueryDB.id_user == ctx.author.id)
-    await ctx.author.send(content='Merci, j\'ai mis a jour tes données sur les recherches !') 
+    try:
+        await ctx.author.send(content='Merci, j\'ai mis a jour tes données sur les recherches !')
+    except discord.HTTPException:
+        await ctx.channel.send(content='Merci {0}, j\'ai mis a jour tes données sur les recherches !'.format(ctx.author.name))
 
 @bot.command(pass_context=True)
 async def help(ctx):
@@ -81,13 +90,22 @@ async def on_member_join(member):
     embed.set_thumbnail(url=member.avatar_url)
     embed.add_field(name='Qui suis-je ?', value='Je suis le bot de Battle Squadron', inline=False)
     embed.add_field(name='Qui sais-je faire ?', value='Tape !help !', inline=False)
-    await member.send(embed=embed)
+
+    try:
+        await member.send(embed=embed)
+    except discord.HTTPException:
+        return
 
     newEmbed = discord.Embed(
         title = 'J\'ai encore besoin de quelque info {0}'.format(member.display_name)
     )
     newEmbed.add_field(name='Quel info j\'ai besoin ?', value='Juste de ton niveau de recherche des étoiles Rouge', inline=False)
     newEmbed.add_field(name='Comment me les dire ?', value='Entre la commande !my_research x (le x correspond a ton niveaux de recherche du scanneur étoile rouge', inline=False)
-    await member.send(embed=newEmbed)
+
+    try:
+        await member.send(embed=newEmbed)
+    except discord.HTTPException:
+        return
+
 
 bot.run(Token)
