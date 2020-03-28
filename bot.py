@@ -7,7 +7,7 @@ from classes.User import User
 from dotenv import load_dotenv
 
 load_dotenv()
-db = TinyDB('user_database.json')
+db = TinyDB('../bdd/user_database.json')
 QueryDB = Query()
 Token = os.getenv('DISCORD_TOKEN')
 bot = Bot(command_prefix="!")
@@ -15,7 +15,7 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    game = discord.Game("compter les pixels de la TV")
+    game = discord.Game("Je teste !")
     await bot.change_presence(status=discord.Status.online, activity=game)
 
 @bot.command()
