@@ -7,7 +7,7 @@ from classes.User import User
 from dotenv import load_dotenv
 
 load_dotenv()
-db = TinyDB('../bdd/user_database.json')
+db = TinyDB(os.getenv('PATH_BDD') + 'bdd/user_database.json')
 QueryDB = Query()
 Token = os.getenv('DISCORD_TOKEN')
 bot = Bot(command_prefix="!")
