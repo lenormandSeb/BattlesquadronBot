@@ -10,6 +10,25 @@ class ModuleGame:
             'Lance-missile Dart'
         ]
 
+        self.shield = [
+            'Bouclier Alpha',
+            'Bouclier Delta',
+            'Bouclier Passif',
+            'Bouclier Omega',
+            'Bouclier Miroir',
+            'Bouclier Balistique',
+            'Bouclier Zone'
+        ]
+
+        self.soutien = [
+            'IEM','Téléporteur','Extension etoile Rouge','Réparation a distance',
+            'Distorsion Temporelle','Unité','Sanctuaire','Discrétion',
+            'Fortification','Impulsion','Roquette Alpha','Sauvetage',
+            'Suppression','Destinée','Barrière','Vengeance',
+            'Roquette Delta','Bond','Lien','Drone Alpha',
+            'Suspension','Roquette Omega'
+        ]
+
     def findWeapon(self, moduleName):
         print(moduleName)
 
