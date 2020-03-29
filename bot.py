@@ -5,6 +5,7 @@ from tinydb import TinyDB, Query
 from discord.ext.commands import Bot
 from classes.User import User
 from classes.Cruiser import Cruiser
+from classes.Cruiser import ModuleGame
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -43,7 +44,6 @@ async def create_RS(ctx, lvl, hour = None):
         await ctx.message.add_reaction('👍')
     else:
         await ctx.send(content='{0}, cela n\'existe pas une RS 0'.format(author))
-
 
 @bot.command()
 async def my_research(ctx, param):
@@ -130,6 +130,28 @@ async def destroy_cruiser(ctx, name=None):
             await ctx.channel.send(content="Au revoir p'tit vaisseaux")
         else:
             await ctx.channel.send(content='Pas de vaisseau trouvé pour {}'.format(name))
+
+@bot.command()
+async def show_module(ctx):
+    em = discord.Embed(
+        title = 'module'
+    )
+    em.add_field(name='Armes', value=', '.join(ModuleGame().weapon), inline=False)
+    em.add_field(name='Boucliers', value=', '.join(ModuleGame().shield), inline=False)
+    em.add_field(name='Soutien', value=', '.join(ModuleGame().soutien), inline=False)
+    await ctx.channel.send(embed=em)
+
+@bot.command()
+async def add_module(ctx, cruiser, module=None, lvl=1):
+    table = db.table('spaceShip')
+    search = table.search((QueryDB.id_user == ctx.author.id) & (QueryDB.ship_name == cruiser))
+    if len(search):
+        print(search)
+
+@bot.command()
+async def find_module(ctx, module_name):
+    result = ModuleGame().findIn(module_name)
+    print(result)
 
 @bot.command(pass_context=True)
 async def help(ctx):

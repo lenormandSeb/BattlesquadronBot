@@ -29,8 +29,16 @@ class ModuleGame:
             'Suspension','Roquette Omega'
         ]
 
-    def findWeapon(self, moduleName):
-        print(moduleName)
+    def findIn(self, moduleName):
+        if moduleName in self.weapon:
+            return 'weapon'
+        if moduleName in self.shield:
+            return 'shield'
+        if moduleName in self.soutien:
+            return 'soutien'
+        return False
+
+    def insert(self, document)
 
 class Cruiser(ModuleGame):
     id_user = ''
