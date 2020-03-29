@@ -4,6 +4,7 @@ import re
 from tinydb import TinyDB, Query
 from discord.ext.commands import Bot
 from classes.User import User
+from classes.Cruiser import Cruiser
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,8 +16,8 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    game = discord.Game("...vec des ptits vaisseaux")
-    await bot.change_presence(status=discord.Status.online, activity=game)
+    game = discord.Game("Je teste !")
+    await bot.change_presence(status=discord.Status.idle, activity=game)
 
 @bot.command()
 async def create_RS(ctx, lvl, hour = None):
@@ -79,6 +80,29 @@ async def infrs(ctx, param):
     except:
         await ctx.channel.send(content='Désoler mais tu ne m\'as donné aucun nom')
 
+@bot.command()
+async def add_cruiser(ctx, name=None):
+    if name == None:
+        errorMessage = 'Ton cuirassé n\'as pas de nom'
+        try:
+            await ctx.author.send(content=errorMessage)
+        except discord.HTTPException:
+            await ctx.channel.send(content='Ton cuirassé n\'as pas de nom {0}'.format(ctx.author.name))
+        return
+    else:
+        cruiser = Cruiser(ctx.author, name)
+        table = db.table('spaceShip')
+        table.insert(cruiser.jsonify(), QueryDB.id_user == ctx.author.id)
+        embed_ship = discord.Embed(
+            title = 'Ajout de {0}'.format(name),
+            color = discord.Color.red(),
+        )
+        await ctx.channel.send(embed=embed_ship)
+
+@bot.command()
+async def destroy_cruiser(ctx, name):
+    print(name)
+
 @bot.command(pass_context=True)
 async def help(ctx):
     helpcommand = discord.Embed(
@@ -94,6 +118,7 @@ async def help(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
+    print(error)
     await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
 
 @bot.event
