@@ -40,7 +40,6 @@ async def create_RS(ctx, lvl, hour = None):
                     await ctx.channel.send(content='Hey @{0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
         else:
             await ctx.send(content='Désoler {0}, mais personne n\'as débloquer ce niveau de recherche'.format(author))
-        # message = await ctx.send(content='{0}, tu veux creer une RS de niveau {1}? J\'envoie une invite a ceux qui le peuvent'.format(author, lvl))
         await ctx.message.add_reaction('👍')
     else:
         await ctx.send(content='{0}, cela n\'existe pas une RS 0'.format(author))
