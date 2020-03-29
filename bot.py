@@ -15,7 +15,7 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    game = discord.Game("Je teste !")
+    game = discord.Game("...vec des ptits vaisseaux")
     await bot.change_presence(status=discord.Status.online, activity=game)
 
 @bot.command()
