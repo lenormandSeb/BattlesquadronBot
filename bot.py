@@ -67,11 +67,12 @@ async def my_research(ctx, param):
 
 @bot.command()
 async def infrs(ctx, param):
+    userToResearch = ctx.message.mentions[0].id
     try:
         table = db.table('user')
-        search = table.search(QueryDB.name.matches(param, flags=re.IGNORECASE))
+        search = table.search(QueryDB.id_user == userToResearch)
         if len(search) > 0:
-            message = 'Le niveau de RS de {0} est : {1}'.format(param, search[0]['RS'])
+            message = 'Le niveau de RS de {0} est : {1}'.format(ctx.message.mentions[0].name, search[0]['RS'])
             await ctx.channel.send(content=message)
         else:
             await ctx.channel.send(content='Désoler mais je n\'ai trouvé personne')
@@ -139,7 +140,7 @@ async def help(ctx):
     )
     helpcommand.add_field(name='!create_RS Niveau Heure(optionel)', value='Lance une invite pour les joueurs ayant le niveau requis avec l\'heure ou sans. \n Exemple: `!create_RS 2`, `!create_RS 2 20h`', inline=False)
     helpcommand.add_field(name='!my_research niveau_recherche_RS', value='Met a jours ton niveau de recherche étoile rouge.\n Exemple: `!my_research 1`', inline=False)
-    helpcommand.add_field(name='!infrs nom_du_joueur', value='Recherche le niveau de RS d\'un joueur.\n Exemple: `!infrs kirino`', inline=False)
+    helpcommand.add_field(name='!infrs @nom_du_joueur', value='Recherche le niveau de RS d\'un joueur.\n Exemple: `!infrs @kirino`', inline=False)
     helpcommand.add_field(name='!my_ship', value='Retrouve tous tes vaisseaux.\n', inline=False)
     helpcommand.add_field(name='!add_cruiser Nom_du_vaisseau', value='Ajout un nouveau vaisseau.\n Exemple `!add_cruiser NCC-1701`', inline=False)
     helpcommand.add_field(name='!destroy_cruiser Nom_du_vaisseau', value='Supprime un vaisseau.\n Exemple `!destroy_cruiser NCC-1701`', inline=False)
@@ -149,7 +150,6 @@ async def help(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
-    print(error)
     await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
 
 @bot.event
