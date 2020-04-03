@@ -67,11 +67,12 @@ async def my_research(ctx, param):
 
 @bot.command()
 async def infrs(ctx, param):
+    userToResearch = ctx.message.mentions[0].id
     try:
         table = db.table('user')
-        search = table.search(QueryDB.name.matches(param, flags=re.IGNORECASE))
+        search = table.search(QueryDB.id_user == userToResearch)
         if len(search) > 0:
-            message = 'Le niveau de RS de {0} est : {1}'.format(param, search[0]['RS'])
+            message = 'Le niveau de RS de {0} est : {1}'.format(ctx.message.mentions[0].name, search[0]['RS'])
             await ctx.channel.send(content=message)
         else:
             await ctx.channel.send(content='Désoler mais je n\'ai trouvé personne')
@@ -149,7 +150,6 @@ async def help(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
-    print(error)
     await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
 
 @bot.event
