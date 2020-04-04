@@ -3,11 +3,11 @@ import discord
 import re
 from tinydb import TinyDB, Query
 from discord.ext.commands import Bot
-from classes.User import User
-from classes.Cruiser import Cruiser
+import BotClass
 from dotenv import load_dotenv
 
 load_dotenv()
+s = BotClass.Star()
 db = TinyDB(os.getenv('PATH_BDD') + 'bdd/user_database.json')
 QueryDB = Query()
 Token = os.getenv('DISCORD_TOKEN')
@@ -44,10 +44,9 @@ async def rs(ctx, lvl, hour = None):
     else:
         await ctx.send(content='{0}, cela n\'existe pas une RS 0'.format(author))
 
-
 @bot.command()
 async def my_research(ctx, param):
-    u = User(ctx.author)
+    u = BotClass.User(ctx.author)
     try:
         if isinstance(int(param), int):
             u.updateRedStar(param)
@@ -105,7 +104,7 @@ async def add_cruiser(ctx, name=None):
             await ctx.channel.send(content='Ton cuirassé n\'as pas de nom {0}'.format(ctx.author.name))
         return
     else:
-        cruiser = Cruiser(ctx.author, name)
+        cruiser = BotClass.Cruiser(ctx.author, name)
         table = db.table('spaceShip')
         table.upsert(cruiser.jsonify(), (QueryDB.id_user == ctx.author.id) & (QueryDB.ship_name == name))
         embed_ship = discord.Embed(
@@ -176,6 +175,5 @@ async def on_member_join(member):
         await member.send(embed=newEmbed)
     except discord.HTTPException:
         return
-
 
 bot.run(Token)
