@@ -25,23 +25,37 @@ async def rs(ctx, lvl, hour = None):
         table = db.table('user')
         search = table.search(QueryDB.RS >= lvl)
 
+        em = discord.Embed(
+            title = 'Creation RS par {}'.format(author),
+        )
+
+        em.set_thumbnail(url='https://cdn.discordapp.com/attachments/691684927309348937/696077525562032188/redStar.png')
+        em.add_field(name='Level Requis', value=lvl, inline=False)
+        em.add_field(name='Créateur', value=author, inline=False)
         if hour:
-            message = ' pour {0}'.format(hour)
-        else:
-            message = ''
+            em.add_field(name='Heure de début', value=hour, inline=False)
+        total = int(lvl) + 1
+        em.add_field(name='Place disponible', value='{}/{}'.format(str(lvl), str(total)), inline=False)
+        em.add_field(name='Participant', value=author, inline=False)
 
         if len(search) > 0:
-            for result in search:
-                id_user = result.get('id_user')
-                forsend = bot.get_user(id_user)
-                name = result.get('name')
-                try:
-                    await forsend.send(content='Hey {0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
-                except discord.HTTPException:
-                    await ctx.channel.send(content='Hey <@{0}>, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(id_user, author, lvl, message))
+            message = await ctx.channel.send(embed=em)
+            # Insert into bdd
+            table = db.table('eventRs')
+            eventRs = {
+                "id_event" : message.id,
+                "author" : author,
+                "author_id" : ctx.author.id,
+                "hour" : hour if hour else None,
+                "require_lvl": lvl,
+                "place": str(total),
+                "user" : [{
+                    'name' : author
+                }]
+            }
+            insert = table.upsert(eventRs, QueryDB.id_event == message.id)
         else:
             await ctx.send(content='Désoler {0}, mais personne n\'as débloquer ce niveau de recherche'.format(author))
-        await ctx.message.add_reaction('👍')
     else:
         await ctx.send(content='{0}, cela n\'existe pas une RS 0'.format(author))
 
@@ -150,6 +164,7 @@ async def help(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
+    print(error)
     await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
 
 @bot.event
@@ -179,10 +194,96 @@ async def on_member_join(member):
 
 @bot.event
 async def on_raw_reaction_add(reaction):
-    pass
+    table = db.table('eventRs')
+    search = table.search(QueryDB.id_event == reaction.message_id)
+    channel = bot.get_channel(reaction.channel_id)
+    message = await channel.fetch_message(reaction.message_id)
+    if len(search) and reaction.emoji.name == '👍' :
+        present = False
+        for u in search[0].get('user'):
+            if u['name'] == reaction.member.name:
+                present = True
+        if not present:
+            user = bot.get_user(reaction.user_id)
+            if not user.name in search[0].get('user') :
+                total = int(search[0].get('require_lvl')) + 1
+                dispo = (total - len(search[0].get('user')))
+                if dispo > 0:
+                    userToAdd = {
+                        'name' : user.name
+                    }
+                    search[0].get('user').append(userToAdd)
+                    update = {
+                        'id_event':search[0].get('id_event'),
+                        'user': search[0].get('user')
+                    }
+                    table.upsert(update, QueryDB.id_event == reaction.message_id)
+
+                    lastEmbed = message.embeds[0]
+                    newEmbed = discord.Embed(
+                        title = lastEmbed.title
+                    )
+
+                    newEmbed.set_thumbnail(url=lastEmbed.thumbnail.url)
+                    newEmbed.add_field(name='Level Requis', value=search[0].get('require_lvl'), inline=False)
+                    newEmbed.add_field(name='Créateur', value=search[0].get('author'), inline=False)
+                    if search[0].get('hour'):
+                        newEmbed.add_field(name='Heure de début', value=search[0].get('hour'), inline=False)
+
+                    participant = []
+                    for u in search[0].get('user'):
+                        participant.append(u['name'])
+                    newEmbed.add_field(name='Place disponible', value='{}/{}'.format(str(dispo), str(total)), inline=False)
+                    newEmbed.add_field(name='Participant', value=','.join(participant), inline=False)
+
+                    await message.edit(embed=newEmbed)
+        else:
+            await message.remove_reaction(reaction.emoji, reaction.member)
+
 
 @bot.event
-async def on_raw_reaction_remove(parameter_list):
-    pass
+async def on_raw_reaction_remove(reaction):
+    table = db.table('eventRs')
+    print(reaction)
+    search = table.search(QueryDB.id_event == reaction.message_id)
+    if reaction.member != None or reaction.user_id != search[0].get('author_id'):
+        if len(search) and reaction.emoji.name == '👍' :
+            user = bot.get_user(reaction.user_id)
+            finduser = {'name' : user.name}
+            if finduser in search[0].get('user') :
+                toRemove = {
+                    'name' : user.name
+                }
+                search[0].get('user').remove(toRemove)
+                update = {
+                    'id_event':search[0].get('id_event'),
+                    'place':search[0].get('place'),
+                    'user': search[0].get('user')
+                }
+                table.upsert(update, QueryDB.id_event == reaction.message_id)
+                channel = bot.get_channel(reaction.channel_id)
+                message = await channel.fetch_message(reaction.message_id)
+                lastEmbed = message.embeds[0]
+                newEmbed = discord.Embed(
+                    title = lastEmbed.title
+                )
+
+                newEmbed.set_thumbnail(url=lastEmbed.thumbnail.url)
+                newEmbed.add_field(name='Level Requis', value=search[0].get('require_lvl'), inline=False)
+                newEmbed.add_field(name='Créateur', value=search[0].get('author'), inline=False)
+                total = int(search[0].get('require_lvl')) + 1
+                dispo = (total - len(search[0].get('user')))
+                participant = []
+                if len(search[0].get('user')):
+                    for u in search[0].get('user'):
+                        print(u['name'])
+                        participant.append(u['name'])
+                    participant = ','.join(participant)
+                else:
+                    participant = 'none'
+                newEmbed.add_field(name='Place disponible', value='{}/{}'.format(str(dispo), str(total)), inline=False)
+                newEmbed.add_field(name='Participant', value=participant, inline=False)
+
+                await message.edit(embed=newEmbed)
 
 bot.run(Token)
