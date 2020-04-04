@@ -32,12 +32,13 @@ async def rs(ctx, lvl, hour = None):
 
         if len(search) > 0:
             for result in search:
-                forsend = bot.get_user(result.get('id_user'))
+                id_user = result.get('id_user')
+                forsend = bot.get_user(id_user)
                 name = result.get('name')
                 try:
                     await forsend.send(content='Hey {0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
                 except discord.HTTPException:
-                    await ctx.channel.send(content='Hey @{0}, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(name, author, lvl, message))
+                    await ctx.channel.send(content='Hey <@{0}>, {1} lance une RS {2}{3}, seras-tu présent(e) ? '.format(id_user, author, lvl, message))
         else:
             await ctx.send(content='Désoler {0}, mais personne n\'as débloquer ce niveau de recherche'.format(author))
         await ctx.message.add_reaction('👍')
@@ -175,5 +176,13 @@ async def on_member_join(member):
         await member.send(embed=newEmbed)
     except discord.HTTPException:
         return
+
+@bot.event
+async def on_raw_reaction_add(reaction):
+    pass
+
+@bot.event
+async def on_raw_reaction_remove(parameter_list):
+    pass
 
 bot.run(Token)
