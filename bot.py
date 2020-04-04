@@ -19,7 +19,7 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.idle)
 
 @bot.command()
-async def create_RS(ctx, lvl, hour = None):
+async def rs(ctx, lvl, hour = None):
     author = ctx.author.name
     if lvl != '0':
         table = db.table('user')
@@ -138,7 +138,7 @@ async def help(ctx):
         title = 'Voici les commandes pour le bot {0}'.format(ctx.author.name),
         color = discord.Color.orange(),
     )
-    helpcommand.add_field(name='!create_RS Niveau Heure(optionel)', value='Lance une invite pour les joueurs ayant le niveau requis avec l\'heure ou sans. \n Exemple: `!create_RS 2`, `!create_RS 2 20h`', inline=False)
+    helpcommand.add_field(name='!rs Niveau Heure(optionel)', value='Lance une invite pour les joueurs ayant le niveau requis avec l\'heure ou sans. \n Exemple: `!rs 2`, `!rs 2 20h`', inline=False)
     helpcommand.add_field(name='!my_research niveau_recherche_RS', value='Met a jours ton niveau de recherche étoile rouge.\n Exemple: `!my_research 1`', inline=False)
     helpcommand.add_field(name='!infrs @nom_du_joueur', value='Recherche le niveau de RS d\'un joueur.\n Exemple: `!infrs @kirino`', inline=False)
     helpcommand.add_field(name='!my_ship', value='Retrouve tous tes vaisseaux.\n', inline=False)
