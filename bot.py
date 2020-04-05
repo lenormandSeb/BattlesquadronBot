@@ -21,7 +21,8 @@ async def on_ready():
 async def rs(ctx, lvl, hour = None):
     author = ctx.author.name
     if lvl != '0':
-        message = await ctx.channel.send(content='Creation d\'une RS en cours...')
+        chan_red_star = await bot.fetch_channel(os.getenv('CHAN_RED_STAR'))
+        message = await chan_red_star.send(content='Creation d\'une RS en cours...')
         star = BotClass.Star(
             message= message.id,
             author=ctx.author,
@@ -143,6 +144,7 @@ async def help(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
+    print(error)
     await ctx.send(content='Hey {0}, désolé je n\'ai pas compris ta demande. Essaye avec la commande !help pour plus d\'information'.format(ctx.message.author.name))
 
 @bot.event
@@ -174,7 +176,7 @@ async def on_member_join(member):
 async def on_raw_reaction_add(reaction):
     channel = bot.get_channel(reaction.channel_id)
     message = await channel.fetch_message(reaction.message_id)
-    if reaction.emoji.name == '👍' and reaction.user_id != bot.user.id :
+    if (reaction.emoji.name == '👍' or reaction.emoji.name == '🔴') and reaction.user_id != bot.user.id :
         response = BotClass.Star().update(reaction, message, bot.get_user(reaction.user_id), True)
         if response:
             newEmbed = BotClass.Star().updateEmbed(reaction)
@@ -185,9 +187,9 @@ async def on_raw_reaction_add(reaction):
 
 @bot.event
 async def on_raw_reaction_remove(reaction):
+    channel = bot.get_channel(reaction.channel_id)
+    message = await channel.fetch_message(reaction.message_id)
     if reaction.emoji.name == '👍' :
-        channel = bot.get_channel(reaction.channel_id)
-        message = await channel.fetch_message(reaction.message_id)
         response = BotClass.Star().update(reaction, message, bot.get_user(reaction.user_id), False)
         if response:
             newEmbed = BotClass.Star().updateEmbed(reaction)
