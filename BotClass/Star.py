@@ -30,6 +30,7 @@ class Star():
                 total = int(self.require_lvl) + 1
             self.place = str(total)
             self.users = kwargs.get('users')
+            self.annulation = False
         except:
             pass
 
@@ -40,6 +41,8 @@ class Star():
         isPresent = False
         event = self.getEvent(reaction.message_id)
         users = event[0].get('users')
+        if reaction.emoji.name == '🔴' and reaction.user_id == userUpdate.id:
+            return True
         if update == True:
             for user in users:
                 if user['name'] == reaction.member.name:
@@ -84,6 +87,10 @@ class Star():
         embed = discord.Embed(
             title='Création de Rs'
         )
+        if self.annulation:
+            embed.add_field(name='Annulation', value='Cette RS a été annuler', inline=False)
+            return embed
+
         embed.set_thumbnail(url=redStar)
         embed.add_field(name='Niveau Requis', value=self.require_lvl, inline=False)
         embed.add_field(name='Créateur', value=self.author, inline=False)
@@ -92,7 +99,6 @@ class Star():
         total = int(self.place)
         dispo = (total - len(self.users))
         participant = []
-        print(self.users)
         for u in self.users:
             participant.append(u['name'])
         embed.add_field(name='Place disponible', value='{}/{}'.format(str(dispo), self.place), inline=False)
@@ -103,6 +109,9 @@ class Star():
 
     def updateEmbed(self,reaction):
         event = self.getEvent(reaction.message_id)
+        if reaction.emoji.name == '🔴':
+            self.annulation = True
+            return self.getEmbed()
         self.require_lvl = event[0].get('require_lvl')
         self.author = event[0].get('author')
         self.hour = event[0].get('hour') if event[0].get('hour') else None
