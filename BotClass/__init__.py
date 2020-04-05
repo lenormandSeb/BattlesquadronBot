@@ -1,4 +1,4 @@
-from .Star import *
+from .Star import Star
 from .User import User
 from .Cruiser import Cruiser
 
