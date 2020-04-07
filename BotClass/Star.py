@@ -112,6 +112,7 @@ class Star():
         if reaction.emoji.name == '🔴':
             self.annulation = True
             return self.getEmbed()
+        self.annulation = False
         self.require_lvl = event[0].get('require_lvl')
         self.author = event[0].get('author')
         self.hour = event[0].get('hour') if event[0].get('hour') else None
