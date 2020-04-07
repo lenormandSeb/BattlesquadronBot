@@ -41,8 +41,10 @@ class Star():
         isPresent = False
         event = self.getEvent(reaction.message_id)
         users = event[0].get('users')
-        if reaction.emoji.name == '🔴' and reaction.user_id == userUpdate.id:
+        if reaction.emoji.name == '🔴' and int(event[0].get('author_id')) == int(reaction.user_id):
             return True
+        else :
+            return False
         if update == True:
             for user in users:
                 if user['name'] == reaction.member.name:
@@ -109,7 +111,7 @@ class Star():
 
     def updateEmbed(self,reaction):
         event = self.getEvent(reaction.message_id)
-        if reaction.emoji.name == '🔴':
+        if reaction.emoji.name == '🔴' and int(event[0].get('author_id')) == int(reaction.user_id):
             self.annulation = True
             return self.getEmbed()
         self.annulation = False
