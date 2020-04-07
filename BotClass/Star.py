@@ -43,43 +43,42 @@ class Star():
         users = event[0].get('users')
         if reaction.emoji.name == '🔴' and int(event[0].get('author_id')) == int(reaction.user_id):
             return True
-        else :
-            return False
-        if update == True:
-            for user in users:
-                if user['name'] == reaction.member.name:
-                    isPresent = True
-            if not isPresent:
-                if not userUpdate.name in users :
-                    total = int(event[0].get('require_lvl')) + 1
-                    dispo = (total - len(event[0].get('users')))
-                    if dispo > 0:
-                        newUser = {
-                            'name' : userUpdate.name
-                        }
-                        event[0].get('users').append(newUser)
-            else:
-                return False
-        else:
-            if reaction.user_id != event[0].get('author_id'):
-                finduser = {'name' : userUpdate.name}
-                if finduser in event[0].get('users') :
-                    toRemove = {
-                        'name' : userUpdate.name
-                    }
-                    event[0].get('users').remove(toRemove)
+        if reaction.emoji.name == '👍':
+            if update == True:
+                for user in users:
+                    if user['name'] == reaction.member.name:
+                        isPresent = True
+                if not isPresent:
+                    if not userUpdate.name in users :
+                        total = int(event[0].get('require_lvl')) + 1
+                        dispo = (total - len(event[0].get('users')))
+                        if dispo > 0:
+                            newUser = {
+                                'name' : userUpdate.name
+                            }
+                            event[0].get('users').append(newUser)
                 else:
                     return False
             else:
-                return False
+                if reaction.user_id != event[0].get('author_id'):
+                    finduser = {'name' : userUpdate.name}
+                    if finduser in event[0].get('users') :
+                        toRemove = {
+                            'name' : userUpdate.name
+                        }
+                        event[0].get('users').remove(toRemove)
+                    else:
+                        return False
+                else:
+                    return False
 
-        update = {
-            'id_event':event[0].get('id_event'),
-            'users': event[0].get('users')
-        }
+            update = {
+                'id_event':event[0].get('id_event'),
+                'users': event[0].get('users')
+            }
 
-        table.upsert(update, QueryDB.id_event == reaction.message_id)
-        return True
+            table.upsert(update, QueryDB.id_event == reaction.message_id)
+            return True
 
     def create_red_star(self):
         id_event = self.id_event
